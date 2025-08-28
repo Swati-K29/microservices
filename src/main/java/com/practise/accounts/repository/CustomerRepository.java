@@ -1,4 +1,4 @@
-package com.practise.accounts;
+package com.practise.accounts.repository;
 
 import com.practise.accounts.entity.Customer;
 import org.springframework.data.jpa.repository.JpaRepository;
