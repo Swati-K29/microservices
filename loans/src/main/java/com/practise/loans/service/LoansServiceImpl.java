@@ -1,8 +1,11 @@
 package com.practise.loans.service;
 
 import com.practise.loans.constants.LoansConstants;
+import com.practise.loans.dto.LoansDto;
 import com.practise.loans.entity.Loans;
 import com.practise.loans.exception.LoanAlreadyExistsException;
+import com.practise.loans.exception.ResourceNotFoundException;
+import com.practise.loans.mapper.LoansMapper;
 import com.practise.loans.repository.LoansRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -35,5 +38,32 @@ public class LoansServiceImpl implements ILoansService{
         newLoan.setAmountPaid(0);
         newLoan.setOutstandingAmount(LoansConstants.NEW_LOAN_LIMIT);
         return newLoan;
+    }
+
+    @Override
+    public LoansDto fetchLoan(String mobileNumber) {
+        Loans loans = loansRepository.findByMobileNumber(mobileNumber).orElseThrow(
+                ()->new ResourceNotFoundException("Loan","mobilenumber",mobileNumber)
+        );
+        return LoansMapper.mapToLoansDto(loans, new LoansDto());
+    }
+
+    @Override
+    public boolean updateLoan(LoansDto loansDto) {
+        Loans loans = loansRepository.findByMobileNumber(loansDto.getMobileNumber()).orElseThrow(
+                ()-> new ResourceNotFoundException("Loan", "mobileNumber", loansDto.getMobileNumber())
+        );
+        LoansMapper.mapToLoans(loansDto,loans);
+        loansRepository.save(loans);
+        return true;
+    }
+
+    @Override
+    public boolean deleteLoan(String mobileNumber) {
+        Loans loans = loansRepository.findByMobileNumber(mobileNumber).orElseThrow(
+                ()-> new ResourceNotFoundException("Loan", "mobileNumber", mobileNumber)
+        );
+        loansRepository.deleteById(loans.getLoanId());
+        return true;
     }
 }
